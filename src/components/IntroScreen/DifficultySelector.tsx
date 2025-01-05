@@ -26,7 +26,7 @@ export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
       <h2 className="text-xl sm:text-2xl text-center mb-4 text-purple-300 font-bold">
         {t.selectDifficulty}
       </h2>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-7">
         {difficulties.map(({ key, label }) => (
           <Button
             key={key}
