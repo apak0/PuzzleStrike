@@ -11,30 +11,24 @@ export const rotateMatrix = (matrix: number[][]): number[][] => {
   return rotated;
 };
 
-export const isValidMove = (
-  board: number[][],
-  piece: number[][],
-  offsetX: number,
-  offsetY: number
-): boolean => {
-  for (let y = 0; y < piece.length; y++) {
-    for (let x = 0; x < piece[y].length; x++) {
-      if (piece[y][x] !== 0) {
-        const newX = x + offsetX;
-        const newY = y + offsetY;
-        
-        if (
-          newX < 0 ||
-          newX >= board[0].length ||
-          newY >= board.length ||
-          (newY >= 0 && board[newY][newX] !== 0)
-        ) {
-          return false;
-        }
-      }
-    }
-  }
-  return true;
+export const isValidMove = (board: number[][], shape: number[][], newX: number, newY: number) => {
+  return shape.every((row, y) => {
+    return row.every((value, x) => {
+      if (value === 0) return true;
+      const boardY = newY + y;
+      const boardX = newX + x;
+      
+      // Board'un üstündeyken sadece x ekseni kontrolü
+      if (boardY < 0) return boardX >= 0 && boardX < board[0].length;
+      
+      return (
+        boardY < board.length &&
+        boardX >= 0 &&
+        boardX < board[0].length &&
+        board[boardY][boardX] === 0
+      );
+    });
+  });
 };
 
 export const getRandomTetromino = () => {

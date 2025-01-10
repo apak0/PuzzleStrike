@@ -11,28 +11,42 @@ export const useTetris = (difficulty: string) => {
   const [currentPiece, setCurrentPiece] = useState(getRandomTetromino());
   const [position, setPosition] = useState({ 
     x: Math.floor((BOARD_WIDTH - currentPiece.shape[0].length) / 2), 
-    y: 0 
+    y: 0
   });
+  const [isGameStarted, setIsGameStarted] = useState(false);
+
+  const getDropSpeed = useCallback(() => {
+    switch (difficulty) {
+      case 'easy': return 1000;
+      case 'medium': return 750;
+      case 'hard': return 500;
+      default: return 750;
+    }
+  }, [difficulty]);
 
   const moveLeft = useCallback(() => {
+    if (!isGameStarted) return;
     if (isValidMove(state.board, currentPiece.shape, position.x - 1, position.y)) {
       setPosition(prev => ({ ...prev, x: prev.x - 1 }));
     }
-  }, [state.board, currentPiece.shape, position]);
+  }, [state.board, currentPiece.shape, position, isGameStarted]);
 
   const moveRight = useCallback(() => {
+    if (!isGameStarted) return;
     if (isValidMove(state.board, currentPiece.shape, position.x + 1, position.y)) {
       setPosition(prev => ({ ...prev, x: prev.x + 1 }));
     }
-  }, [state.board, currentPiece.shape, position]);
+  }, [state.board, currentPiece.shape, position, isGameStarted]);
 
   const moveDown = useCallback(() => {
+    if (!isGameStarted) return false;
+
     if (isValidMove(state.board, currentPiece.shape, position.x, position.y + 1)) {
       setPosition(prev => ({ ...prev, y: prev.y + 1 }));
       return true;
     }
     return false;
-  }, [state.board, currentPiece.shape, position]);
+  }, [state.board, currentPiece.shape, position, isGameStarted]);
 
   const hardDrop = useCallback(() => {
     const lowestY = getLowestValidPosition(state.board, currentPiece.shape, position.x, position.y);
@@ -40,11 +54,12 @@ export const useTetris = (difficulty: string) => {
   }, [state.board, currentPiece.shape, position]);
 
   const rotate = useCallback(() => {
+    if (!isGameStarted) return;
     const rotated = rotateMatrix(currentPiece.shape);
     if (isValidMove(state.board, rotated, position.x, position.y)) {
       setCurrentPiece(prev => ({ ...prev, shape: rotated }));
     }
-  }, [state.board, currentPiece, position]);
+  }, [state.board, currentPiece, position, isGameStarted]);
 
   const resetPosition = useCallback(() => {
     const newPiece = getRandomTetromino();
@@ -60,13 +75,57 @@ export const useTetris = (difficulty: string) => {
     resetPosition();
   }, [resetGame, resetPosition]);
 
-  useEffect(() => {
-    const gameLoop = setInterval(() => {
-      if (!moveDown()) {
-        // Lock the piece in place
-        const newBoard = state.board.map(row => [...row]);
-        let canPlacePiece = true;
+  const isValidPosition = useCallback((piece: typeof currentPiece, pos: typeof position) => {
+    return piece.shape.every((row, dy) => {
+      return row.every((value, dx) => {
+        if (value === 0) return true;
+        const newY = pos.y + dy;
+        const newX = pos.x + dx;
+        return (
+          newX >= 0 &&
+          newX < BOARD_WIDTH &&
+          newY < BOARD_HEIGHT &&
+          (newY < 0 || state.board[newY][newX] === 0)
+        );
+      });
+    });
+  }, [state.board]);
 
+  const getDisplayBoard = useCallback(() => {
+    const displayBoard = state.board.map(row => [...row]);
+    
+    currentPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value !== 0) {
+          const boardY = y + position.y;
+          const boardX = x + position.x;
+          if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+            displayBoard[boardY][boardX] = currentPiece.color;
+          }
+        }
+      });
+    });
+
+    return displayBoard;
+  }, [state.board, currentPiece, position]);
+
+  useEffect(() => {
+    if (!isGameStarted) {
+      setPosition({
+        x: Math.floor((BOARD_WIDTH - currentPiece.shape[0].length) / 2),
+        y: 0
+      });
+      return () => {};
+    }
+
+    console.log('Game started, setting up interval');
+
+    const gameLoop = setInterval(() => {
+      console.log('Game loop tick');
+      if (!moveDown()) {
+        const newBoard = state.board.map(row => [...row]);
+        
+        let canPlacePiece = false;
         currentPiece.shape.forEach((row, y) => {
           row.forEach((value, x) => {
             if (value !== 0) {
@@ -75,19 +134,17 @@ export const useTetris = (difficulty: string) => {
               
               if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
                 newBoard[boardY][boardX] = currentPiece.color;
-              } else {
-                canPlacePiece = false;
+                canPlacePiece = true;
               }
             }
           });
         });
 
-        if (!canPlacePiece) {
+        if (!canPlacePiece || position.y <= 0) {
           setState(prev => ({ ...prev, gameOver: true }));
           return;
         }
 
-        // Check for completed lines
         let newScore = state.score;
         const completedLines = newBoard.reduce((acc, row, i) => {
           if (row.every(cell => cell !== 0)) {
@@ -114,20 +171,22 @@ export const useTetris = (difficulty: string) => {
       }
     }, getDropSpeed());
 
-    return () => clearInterval(gameLoop);
-  }, [state, currentPiece, position, moveDown, resetPosition]);
-
-  const getDropSpeed = useCallback(() => {
-    switch (difficulty) {
-      case 'easy': return 1000;
-      case 'medium': return 750;
-      case 'hard': return 500;
-      default: return 750;
-    }
-  }, [difficulty]);
+    return () => {
+      console.log('Clearing interval');
+      clearInterval(gameLoop);
+    };
+  }, [
+    state,
+    currentPiece,
+    position,
+    moveDown,
+    resetPosition,
+    isGameStarted,
+    getDropSpeed
+  ]);
 
   return {
-    board: state.board,
+    board: getDisplayBoard(),
     score: state.score,
     gameOver: state.gameOver,
     currentPiece,
@@ -139,6 +198,8 @@ export const useTetris = (difficulty: string) => {
       hardDrop,
       rotate
     },
-    restart
+    restart,
+    isGameStarted,
+    setIsGameStarted
   };
 };
