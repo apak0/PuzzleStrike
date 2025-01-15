@@ -22,7 +22,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => {
         <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-transparent bg-clip-text mb-2">
           {t.title}
         </h1>
-        <p className="text-gray-400">{t.subtitle}</p>
+        
       </div>
 
       <div className="space-y-4 mb-8">
@@ -54,8 +54,8 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => {
           hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 transform hover:scale-105 transition-all duration-300
           shadow-lg shadow-indigo-500/50"
       >
-        {t.startGame}
+        {t.go}
       </button>
     </div>
   );
-};
+}

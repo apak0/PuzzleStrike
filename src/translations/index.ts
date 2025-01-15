@@ -1,6 +1,6 @@
 interface Translations {
   title: string;
-  subtitle: string;
+  
   selectDifficulty: string;
   easy: string;
   medium: string;
@@ -17,12 +17,12 @@ interface Translations {
 export const translations: Record<'en' | 'tr', Translations> = {
   en: {
     title: 'PuzzleStrike',
-    subtitle: 'A Neon Tetris Experience',
+    
     selectDifficulty: 'Select Difficulty',
     easy: 'Easy',
     medium: 'Medium',
     hard: 'Hard',
-    startGame: 'Start Game',
+    startGame: '',
     score: 'Score',
     moveLeft: 'Move Left',
     moveRight: 'Move Right',
@@ -32,7 +32,7 @@ export const translations: Record<'en' | 'tr', Translations> = {
   },
   tr: {
     title: 'PuzzleStrike',
-    subtitle: 'Neon Tetris Deneyimi',
+   
     selectDifficulty: 'Zorluk Seç',
     easy: 'Kolay',
     medium: 'Orta',

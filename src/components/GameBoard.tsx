@@ -5,6 +5,7 @@ import { GameHeader } from "./GameHeader/GameHeader";
 import { GameControls } from "./GameControls/GameControls";
 import { createDisplayBoard } from "../utils/boardUtils";
 import { Countdown } from "./Countdown/Countdown";
+import { BoomAnimation } from "./Animations/BoomAnimation";
 
 interface GameBoardProps {
   board: number[][];
@@ -26,6 +27,9 @@ interface GameBoardProps {
   };
   onRefresh: () => void;
   setIsGameStarted: (started: boolean) => void;
+  showCountdown: boolean;
+  completedLines: number[];
+  onAnimationComplete: () => void;
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({
@@ -36,12 +40,20 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   controls,
   onRefresh,
   setIsGameStarted,
+  showCountdown,
+  completedLines,
+  onAnimationComplete,
 }) => {
   const [countdown, setCountdown] = useState(3);
-  const [isCountdownComplete, setIsCountdownComplete] = useState(false);
+  const [displayCountdown, setDisplayCountdown] = useState(showCountdown);
   const displayBoard = createDisplayBoard(board, currentPiece, position);
 
   useEffect(() => {
+    if (!showCountdown) {
+      setDisplayCountdown(false);
+      return;
+    }
+
     if (countdown > 0) {
       const timer = setTimeout(() => {
         setCountdown((prev) => prev - 1);
@@ -50,13 +62,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({
       return () => clearTimeout(timer);
     } else if (countdown === 0) {
       const timer = setTimeout(() => {
-        setIsCountdownComplete(true);
+        setDisplayCountdown(false);
         setIsGameStarted(true);
       }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [countdown, setIsGameStarted]);
+  }, [countdown, setIsGameStarted, showCountdown]);
 
   return (
     <Container className="flex flex-col items-center min-h-screen py-2 sm:py-8">
@@ -69,7 +81,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 <BoardRow key={i} row={row} rowIndex={i} />
               ))}
             </div>
-            {!isCountdownComplete && <Countdown count={countdown} />}
+            {displayCountdown && <Countdown count={countdown} />}
+            {completedLines.map((rowIndex) => (
+              <BoomAnimation
+                key={rowIndex}
+                rowIndex={rowIndex}
+                onComplete={onAnimationComplete}
+              />
+            ))}
           </div>
         </div>
       </div>

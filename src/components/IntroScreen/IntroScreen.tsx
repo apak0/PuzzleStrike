@@ -25,7 +25,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => {
         <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-transparent bg-clip-text mb-2">
           {t.title}
         </h1>
-        <p className="text-sm sm:text-base text-gray-400">{t.subtitle}</p>
+        
       </div>
 
       <DifficultySelector

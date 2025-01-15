@@ -6,60 +6,62 @@ import { useGameState } from './useGameState';
 const BOARD_WIDTH = 10;
 const BOARD_HEIGHT = 20;
 
-export const useTetris = (difficulty: string) => {
+export const useTetris = (difficulty: string, isGameStarted: boolean) => {
   const { state, setState, resetGame } = useGameState();
   const [currentPiece, setCurrentPiece] = useState(getRandomTetromino());
   const [position, setPosition] = useState({ 
     x: Math.floor((BOARD_WIDTH - currentPiece.shape[0].length) / 2), 
     y: 0
   });
-  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [completedLines, setCompletedLines] = useState<number[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const getDropSpeed = useCallback(() => {
     switch (difficulty) {
-      case 'easy': return 1000;
-      case 'medium': return 750;
-      case 'hard': return 500;
+      case 'easy': return 750;
+      case 'medium': return 500;
+      case 'hard': return 200;
       default: return 750;
     }
   }, [difficulty]);
 
-  const moveLeft = useCallback(() => {
-    if (!isGameStarted) return;
+  const moveLeft = useCallback((isActive: boolean) => {
+    if (!isActive || isAnimating) return;
     if (isValidMove(state.board, currentPiece.shape, position.x - 1, position.y)) {
       setPosition(prev => ({ ...prev, x: prev.x - 1 }));
     }
-  }, [state.board, currentPiece.shape, position, isGameStarted]);
+  }, [state.board, currentPiece.shape, position, isAnimating]);
 
-  const moveRight = useCallback(() => {
-    if (!isGameStarted) return;
+  const moveRight = useCallback((isActive: boolean) => {
+    if (!isActive || isAnimating) return;
     if (isValidMove(state.board, currentPiece.shape, position.x + 1, position.y)) {
       setPosition(prev => ({ ...prev, x: prev.x + 1 }));
     }
-  }, [state.board, currentPiece.shape, position, isGameStarted]);
+  }, [state.board, currentPiece.shape, position, isAnimating]);
 
-  const moveDown = useCallback(() => {
-    if (!isGameStarted) return false;
+  const moveDown = useCallback((isActive: boolean) => {
+    if (!isActive || isAnimating) return false;
 
     if (isValidMove(state.board, currentPiece.shape, position.x, position.y + 1)) {
       setPosition(prev => ({ ...prev, y: prev.y + 1 }));
       return true;
     }
     return false;
-  }, [state.board, currentPiece.shape, position, isGameStarted]);
+  }, [state.board, currentPiece.shape, position, isAnimating]);
 
-  const hardDrop = useCallback(() => {
+  const hardDrop = useCallback((isActive: boolean) => {
+    if (!isActive || isAnimating) return;
     const lowestY = getLowestValidPosition(state.board, currentPiece.shape, position.x, position.y);
     setPosition(prev => ({ ...prev, y: lowestY }));
-  }, [state.board, currentPiece.shape, position]);
+  }, [state.board, currentPiece.shape, position, isAnimating]);
 
-  const rotate = useCallback(() => {
-    if (!isGameStarted) return;
+  const rotate = useCallback((isActive: boolean) => {
+    if (!isActive || isAnimating) return;
     const rotated = rotateMatrix(currentPiece.shape);
     if (isValidMove(state.board, rotated, position.x, position.y)) {
       setCurrentPiece(prev => ({ ...prev, shape: rotated }));
     }
-  }, [state.board, currentPiece, position, isGameStarted]);
+  }, [state.board, currentPiece, position, isAnimating]);
 
   const resetPosition = useCallback(() => {
     const newPiece = getRandomTetromino();
@@ -70,59 +72,37 @@ export const useTetris = (difficulty: string) => {
     });
   }, []);
 
+  const handleAnimationComplete = useCallback(() => {
+    setIsAnimating(false);
+    setCompletedLines([]);
+    
+    // Update the board after animation
+    const newBoard = state.board.filter((_, index) => !completedLines.includes(index));
+    const emptyRows = Array(completedLines.length).fill(0).map(() => Array(BOARD_WIDTH).fill(0));
+    setState(prev => ({
+      ...prev,
+      board: [...emptyRows, ...newBoard],
+      score: prev.score + (completedLines.length * 100)
+    }));
+    
+    resetPosition();
+  }, [completedLines, state.board, setState, resetPosition]);
+
   const restart = useCallback(() => {
     resetGame();
     resetPosition();
+    setCompletedLines([]);
+    setIsAnimating(false);
   }, [resetGame, resetPosition]);
 
-  const isValidPosition = useCallback((piece: typeof currentPiece, pos: typeof position) => {
-    return piece.shape.every((row, dy) => {
-      return row.every((value, dx) => {
-        if (value === 0) return true;
-        const newY = pos.y + dy;
-        const newX = pos.x + dx;
-        return (
-          newX >= 0 &&
-          newX < BOARD_WIDTH &&
-          newY < BOARD_HEIGHT &&
-          (newY < 0 || state.board[newY][newX] === 0)
-        );
-      });
-    });
-  }, [state.board]);
-
-  const getDisplayBoard = useCallback(() => {
-    const displayBoard = state.board.map(row => [...row]);
-    
-    currentPiece.shape.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value !== 0) {
-          const boardY = y + position.y;
-          const boardX = x + position.x;
-          if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
-            displayBoard[boardY][boardX] = currentPiece.color;
-          }
-        }
-      });
-    });
-
-    return displayBoard;
-  }, [state.board, currentPiece, position]);
-
   useEffect(() => {
-    if (!isGameStarted) {
-      setPosition({
-        x: Math.floor((BOARD_WIDTH - currentPiece.shape[0].length) / 2),
-        y: 0
-      });
-      return () => {};
+    if (!isGameStarted || isAnimating) {
+      return;
     }
 
-    console.log('Game started, setting up interval');
-
     const gameLoop = setInterval(() => {
-      console.log('Game loop tick');
-      if (!moveDown()) {
+      const moveResult = moveDown(true);
+      if (!moveResult) {
         const newBoard = state.board.map(row => [...row]);
         
         let canPlacePiece = false;
@@ -145,45 +125,51 @@ export const useTetris = (difficulty: string) => {
           return;
         }
 
-        let newScore = state.score;
-        const completedLines = newBoard.reduce((acc, row, i) => {
+        // Find completed lines
+        const newCompletedLines = newBoard.reduce((acc, row, i) => {
           if (row.every(cell => cell !== 0)) {
             acc.push(i);
           }
           return acc;
         }, [] as number[]);
 
-        if (completedLines.length > 0) {
-          completedLines.forEach(line => {
-            newBoard.splice(line, 1);
-            newBoard.unshift(Array(BOARD_WIDTH).fill(0));
-          });
-          newScore += completedLines.length * 100;
+        if (newCompletedLines.length > 0) {
+          setCompletedLines(newCompletedLines);
+          setIsAnimating(true);
+          setState(prev => ({
+            ...prev,
+            board: newBoard
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            board: newBoard
+          }));
+          resetPosition();
         }
-
-        setState(prev => ({
-          ...prev,
-          board: newBoard,
-          score: newScore
-        }));
-
-        resetPosition();
       }
     }, getDropSpeed());
 
-    return () => {
-      console.log('Clearing interval');
-      clearInterval(gameLoop);
-    };
-  }, [
-    state,
-    currentPiece,
-    position,
-    moveDown,
-    resetPosition,
-    isGameStarted,
-    getDropSpeed
-  ]);
+    return () => clearInterval(gameLoop);
+  }, [isGameStarted, moveDown, state.board, currentPiece, position, setState, resetPosition, getDropSpeed, isAnimating]);
+
+  const getDisplayBoard = useCallback(() => {
+    const displayBoard = state.board.map(row => [...row]);
+    
+    currentPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value !== 0) {
+          const boardY = y + position.y;
+          const boardX = x + position.x;
+          if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
+            displayBoard[boardY][boardX] = currentPiece.color;
+          }
+        }
+      });
+    });
+
+    return displayBoard;
+  }, [state.board, currentPiece, position]);
 
   return {
     board: getDisplayBoard(),
@@ -199,7 +185,7 @@ export const useTetris = (difficulty: string) => {
       rotate
     },
     restart,
-    isGameStarted,
-    setIsGameStarted
+    completedLines,
+    onAnimationComplete: handleAnimationComplete
   };
 };
