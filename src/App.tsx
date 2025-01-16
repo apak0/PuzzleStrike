@@ -4,12 +4,18 @@ import { GameBoard } from "./components/GameBoard";
 import { useTetris } from "./hooks/useTetris";
 import { useKeyboardControls } from "./hooks/useKeyboardControls";
 import { useTouchControls } from "./hooks/useTouchControls";
+import { ControlSelect } from "./components/ControlSelect/ControlSelect";
+
+type GameState = "intro" | "control-select" | "playing";
+type ControlType = "arrows" | "touch" | null;
 
 const App: React.FC = () => {
-  const [gameState, setGameState] = useState<"intro" | "playing">("intro");
+  const [gameState, setGameState] = useState<GameState>("intro");
   const [difficulty, setDifficulty] = useState<string>("medium");
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [showInitialCountdown, setShowInitialCountdown] = useState(true);
+  const [controlType, setControlType] = useState<ControlType>(null);
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
 
   const { 
     board, 
@@ -31,9 +37,23 @@ const App: React.FC = () => {
     rotate: () => controls.rotate(isGameStarted && !gameOver)
   };
 
-  // Use both keyboard and touch controls
-  useKeyboardControls(wrappedControls);
-  useTouchControls(wrappedControls);
+  // Setup keyboard controls
+  useKeyboardControls(controlType === 'arrows' ? wrappedControls : {
+    moveLeft: () => {},
+    moveRight: () => {},
+    moveDown: () => {},
+    hardDrop: () => {},
+    rotate: () => {}
+  });
+
+  // Setup touch controls
+  useTouchControls(controlType === 'touch' ? wrappedControls : {
+    moveLeft: () => {},
+    moveRight: () => {},
+    moveDown: () => {},
+    hardDrop: () => {},
+    rotate: () => {}
+  });
 
   useEffect(() => {
     if (gameOver) {
@@ -42,23 +62,30 @@ const App: React.FC = () => {
   }, [gameOver]);
 
   const handleStart = (selectedDifficulty: string) => {
-    setDifficulty(selectedDifficulty);
+    setSelectedDifficulty(selectedDifficulty);
+    setGameState("control-select");
+  };
+
+  const handleControlSelect = (type: 'arrows' | 'touch') => {
+    setControlType(type);
+    setDifficulty(selectedDifficulty!);
     setGameState("playing");
-    setIsGameStarted(false); // Reset game started state for countdown
-    setShowInitialCountdown(true); // Show countdown only on first start
+    setIsGameStarted(false);
+    setShowInitialCountdown(true);
   };
 
   const handleRefresh = () => {
     restart();
-    setIsGameStarted(true); // Immediately start the game on refresh
-    setShowInitialCountdown(false); // Don't show countdown on restart
+    setIsGameStarted(true);
+    setShowInitialCountdown(false);
   };
 
   const handleHome = () => {
-    restart(); // Reset the game state
-    setGameState("intro"); // Go back to intro screen
+    restart();
+    setGameState("intro");
     setIsGameStarted(false);
     setShowInitialCountdown(true);
+    setControlType(null);
   };
 
   return (
@@ -66,6 +93,10 @@ const App: React.FC = () => {
       {gameState === "intro" ? (
         <div className="animate-slide-in">
           <IntroScreen onStart={handleStart} />
+        </div>
+      ) : gameState === "control-select" ? (
+        <div className="animate-slide-in">
+          <ControlSelect onSelect={handleControlSelect} />
         </div>
       ) : (
         <div className="animate-slide-in">
@@ -82,6 +113,7 @@ const App: React.FC = () => {
             completedLines={completedLines}
             onAnimationComplete={onAnimationComplete}
             gameOver={gameOver}
+            controlType={controlType!}
           />
         </div>
       )}

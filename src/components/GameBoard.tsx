@@ -37,6 +37,7 @@ interface GameBoardProps {
   completedLines: number[];
   onAnimationComplete: () => void;
   gameOver: boolean;
+  controlType: 'arrows' | 'touch';
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({
@@ -52,6 +53,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   completedLines,
   onAnimationComplete,
   gameOver,
+  controlType,
 }) => {
   const [countdown, setCountdown] = useState(3);
   const [displayCountdown, setDisplayCountdown] = useState(showCountdown);
@@ -115,8 +117,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         </div>
       </div>
-      <GameControls {...controls} />
-      <TouchInstructions />
+      {controlType === 'arrows' && <GameControls {...controls} />}
+      {controlType === 'touch' && <TouchInstructions />}
     </Container>
   );
 };

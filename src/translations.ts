@@ -21,7 +21,10 @@ export const translations = {
     touchSwipeDown: 'Swipe down to drop faster',
     touchTap: 'Tap to rotate',
     touchSwipeDownFast: 'Quick swipe down for instant drop',
-    gotIt: 'Got it!'
+    gotIt: 'Got it!',
+    selectControls: 'Select Controls',
+    arrowControls: 'Arrow Controls',
+    controlsNote: 'You can change controls later from settings',
   },
   tr: {
     // ... existing translations
@@ -43,6 +46,9 @@ export const translations = {
     touchSwipeDown: 'Aşağı kaydırarak hızlı düşür',
     touchTap: 'Döndürmek için dokun',
     touchSwipeDownFast: 'Anında düşürmek için hızlıca aşağı kaydır',
-    gotIt: 'Anladım!'
+    gotIt: 'Anladım!',
+    selectControls: 'Kontrol Seç',
+    arrowControls: 'Ok Kontrolleri',
+    controlsNote: 'Kontrolleri daha sonra ayarlardan değiştirebilirsiniz',
   },
 };
