@@ -13,7 +13,9 @@ export const translations = {
     selectDifficulty: 'Select Difficulty',
     gameOver: 'Game Over',
     finalScore: 'Final Score',
-    playAgain: 'Play Again'
+    playAgain: 'Play Again',
+    home: 'Home',
+    refresh: 'Restart'
   },
   tr: {
     // ... mevcut çeviriler
@@ -27,6 +29,8 @@ export const translations = {
     selectDifficulty: 'Zorluk Seç',
     gameOver: 'Oyun Bitti',
     finalScore: 'Son Skor',
-    playAgain: 'Tekrar Oyna'
+    playAgain: 'Tekrar Oyna',
+    home: 'Ana Sayfa',
+    refresh: 'Yeniden Başlat'
   },
 };

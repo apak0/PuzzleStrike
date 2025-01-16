@@ -6,9 +6,10 @@ import { translations } from '../../translations';
 interface GameOverOverlayProps {
   score: number;
   onRestart: () => void;
+  onHome: () => void;
 }
 
-export const GameOverOverlay: React.FC<GameOverOverlayProps> = ({ score, onRestart }) => {
+export const GameOverOverlay: React.FC<GameOverOverlayProps> = ({ score, onRestart, onHome }) => {
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -20,14 +21,24 @@ export const GameOverOverlay: React.FC<GameOverOverlayProps> = ({ score, onResta
           <p className="text-gray-400">{t.finalScore}</p>
           <p className="text-4xl font-bold text-purple-400">{score}</p>
         </div>
-        <Button
-          variant="primary"
-          size="lg"
-          onClick={onRestart}
-          className="w-full"
-        >
-          {t.playAgain}
-        </Button>
+        <div className="space-y-3">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={onRestart}
+            className="w-full"
+          >
+            {t.playAgain}
+          </Button>
+          <Button
+            variant="secondary"
+            size="lg"
+            onClick={onHome}
+            className="w-full bg-purple-500/10 hover:bg-purple-500/20"
+          >
+            {t.home}
+          </Button>
+        </div>
       </div>
     </div>
   );

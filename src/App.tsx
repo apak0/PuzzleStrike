@@ -51,6 +51,13 @@ const App: React.FC = () => {
     setShowInitialCountdown(false); // Don't show countdown on restart
   };
 
+  const handleHome = () => {
+    restart(); // Reset the game state
+    setGameState("intro"); // Go back to intro screen
+    setIsGameStarted(false);
+    setShowInitialCountdown(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900">
       {gameState === "intro" ? (
@@ -66,6 +73,7 @@ const App: React.FC = () => {
             position={position}
             controls={wrappedControls}
             onRefresh={handleRefresh}
+            onHome={handleHome}
             setIsGameStarted={setIsGameStarted}
             showCountdown={showInitialCountdown}
             completedLines={completedLines}

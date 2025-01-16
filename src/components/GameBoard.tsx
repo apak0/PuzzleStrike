@@ -7,6 +7,9 @@ import { createDisplayBoard } from "../utils/boardUtils";
 import { Countdown } from "./Countdown/Countdown";
 import { LineCompleteAnimation } from "./Animations/LineCompleteAnimation";
 import { GameOverOverlay } from "./GameOver/GameOverOverlay";
+import { Button } from "./UI/Button";
+import { useLanguage } from "../contexts/LanguageContext";
+import { translations } from "../translations";
 
 interface GameBoardProps {
   board: number[][];
@@ -27,6 +30,7 @@ interface GameBoardProps {
     rotate: () => void;
   };
   onRefresh: () => void;
+  onHome: () => void;
   setIsGameStarted: (started: boolean) => void;
   showCountdown: boolean;
   completedLines: number[];
@@ -41,6 +45,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   position,
   controls,
   onRefresh,
+  onHome,
   setIsGameStarted,
   showCountdown,
   completedLines,
@@ -50,6 +55,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   const [countdown, setCountdown] = useState(3);
   const [displayCountdown, setDisplayCountdown] = useState(showCountdown);
   const displayBoard = createDisplayBoard(board, currentPiece, position);
+  const { language } = useLanguage();
+  const t = translations[language];
 
   useEffect(() => {
     if (!showCountdown) {
@@ -75,7 +82,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <Container className="flex flex-col items-center min-h-screen py-2 sm:py-8">
-      <GameHeader score={score} onRefresh={onRefresh} />
+      <GameHeader score={score} onRefresh={onRefresh} onHome={onHome} />
       <div className="relative flex items-center justify-center mb-5">
         <div className="scale-90 sm:scale-100">
           <div className="relative border-2 border-purple-500/50 rounded-lg p-0.5 sm:p-1 bg-gray-900/90 shadow-lg shadow-purple-500/20">
@@ -101,6 +108,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
               <GameOverOverlay
                 score={score}
                 onRestart={onRefresh}
+                onHome={onHome}
               />
             )}
           </div>
