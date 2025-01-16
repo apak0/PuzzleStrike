@@ -11,6 +11,7 @@ interface TouchControls {
 export const useTouchControls = (controls: TouchControls) => {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastMoveTimeRef = useRef<number>(0);
+  const hasMoved = useRef<boolean>(false);
   const moveThreshold = 30; // Minimum distance in pixels to trigger a move
   const swipeThreshold = 50; // Minimum distance in pixels to trigger a swipe
   const moveDelay = 100; // Minimum time between moves in milliseconds
@@ -22,6 +23,7 @@ export const useTouchControls = (controls: TouchControls) => {
         x: touch.clientX,
         y: touch.clientY,
       };
+      hasMoved.current = false;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
@@ -31,6 +33,11 @@ export const useTouchControls = (controls: TouchControls) => {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
       const currentTime = Date.now();
+
+      // If there's significant movement, mark that we've moved
+      if (Math.abs(deltaX) > moveThreshold || Math.abs(deltaY) > moveThreshold) {
+        hasMoved.current = true;
+      }
 
       // Only process move if enough time has passed since last move
       if (currentTime - lastMoveTimeRef.current < moveDelay) return;
@@ -65,8 +72,8 @@ export const useTouchControls = (controls: TouchControls) => {
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
 
-      // Rotate on tap (small movement)
-      if (Math.abs(deltaX) < moveThreshold && Math.abs(deltaY) < moveThreshold) {
+      // Only rotate if there was no significant movement
+      if (!hasMoved.current && Math.abs(deltaX) < moveThreshold && Math.abs(deltaY) < moveThreshold) {
         controls.rotate();
       }
       // Hard drop on quick downward swipe
@@ -75,6 +82,7 @@ export const useTouchControls = (controls: TouchControls) => {
       }
 
       touchStartRef.current = null;
+      hasMoved.current = false;
     };
 
     // Add touch event listeners
