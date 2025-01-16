@@ -1,9 +1,9 @@
-import React from 'react';
-import { ArrowLeft, ArrowRight, ArrowDown, RotateCw } from 'lucide-react';
-import { ControlButton } from './ControlButton';
-import { useLanguage } from '../../contexts/LanguageContext';
-import { translations } from '../../translations';
-import { useLongPress } from '../../hooks/useLongPress';
+import React from "react";
+import { ArrowLeft, ArrowRight, ArrowDown, RotateCw } from "lucide-react";
+import { ControlButton } from "./ControlButton";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { translations } from "../../translations";
+import { useLongPress } from "../../hooks/useLongPress";
 
 interface GameControlsProps {
   moveLeft: () => void;
@@ -39,6 +39,14 @@ export const GameControls: React.FC<GameControlsProps> = ({
             {...downButtonProps}
             className="scale-90 bg-purple-600/20 border-purple-600/50 hover:bg-purple-600/30"
           />
+
+          <ControlButton
+            icon={RotateCw}
+            onClick={rotate}
+            label={t.rotate}
+            className="scale-110"
+          />
+
           <div className="flex gap-2">
             <ControlButton
               icon={ArrowLeft}
@@ -53,12 +61,6 @@ export const GameControls: React.FC<GameControlsProps> = ({
               className="scale-90"
             />
           </div>
-          <ControlButton
-            icon={RotateCw}
-            onClick={rotate}
-            label={t.rotate}
-            className="scale-90"
-          />
         </div>
       </div>
     </div>
