@@ -7,9 +7,6 @@ import { createDisplayBoard } from "../utils/boardUtils";
 import { Countdown } from "./Countdown/Countdown";
 import { LineCompleteAnimation } from "./Animations/LineCompleteAnimation";
 import { GameOverOverlay } from "./GameOver/GameOverOverlay";
-import { Button } from "./UI/Button";
-import { useLanguage } from "../contexts/LanguageContext";
-import { translations } from "../translations";
 import { TouchInstructions } from "./TouchInstructions/TouchInstructions";
 
 interface GameBoardProps {
@@ -58,8 +55,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   const [countdown, setCountdown] = useState(3);
   const [displayCountdown, setDisplayCountdown] = useState(showCountdown);
   const displayBoard = createDisplayBoard(board, currentPiece, position);
-  const { language } = useLanguage();
-  const t = translations[language];
 
   useEffect(() => {
     if (!showCountdown) {

@@ -25,6 +25,11 @@ export const translations = {
     selectControls: 'Select Controls',
     arrowControls: 'Arrow Controls',
     controlsNote: 'You can change controls later from settings',
+    moveLeft: 'Move Left',
+    moveRight: 'Move Right',
+    moveDown: 'Move Down',
+    rotate: 'Rotate',
+    hardDrop: 'Hard Drop'
   },
   tr: {
     // ... existing translations
@@ -50,5 +55,10 @@ export const translations = {
     selectControls: 'Kontrol Seç',
     arrowControls: 'Ok Kontrolleri',
     controlsNote: 'Kontrolleri daha sonra ayarlardan değiştirebilirsiniz',
+    moveLeft: 'Sola Git',
+    moveRight: 'Sağa Git',
+    moveDown: 'Aşağı Git',
+    rotate: 'Döndür',
+    hardDrop: 'Hızlı Düşür'
   },
 };

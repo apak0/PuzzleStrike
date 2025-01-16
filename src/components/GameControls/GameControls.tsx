@@ -30,9 +30,9 @@ export const GameControls: React.FC<GameControlsProps> = ({
   });
 
   return (
-    <div className=" bottom-4 left-0 right-0 block md:hidden">
+    <div className="fixed bottom-4 left-0 right-0 md:hidden">
       <div className="container mx-auto max-w-sm px-4">
-        <div className="flex justify-between items-center gap-10 ">
+        <div className="flex justify-between items-center gap-10">
           <ControlButton
             icon={ArrowDown}
             label={t.moveDown}

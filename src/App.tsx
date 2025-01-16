@@ -16,6 +16,16 @@ const App: React.FC = () => {
   const [showInitialCountdown, setShowInitialCountdown] = useState(true);
   const [controlType, setControlType] = useState<ControlType>(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const { 
     board, 
@@ -37,8 +47,8 @@ const App: React.FC = () => {
     rotate: () => controls.rotate(isGameStarted && !gameOver)
   };
 
-  // Setup keyboard controls
-  useKeyboardControls(controlType === 'arrows' ? wrappedControls : {
+  // Setup keyboard controls - always active on desktop
+  useKeyboardControls(!isMobile || controlType === 'arrows' ? wrappedControls : {
     moveLeft: () => {},
     moveRight: () => {},
     moveDown: () => {},
@@ -55,67 +65,69 @@ const App: React.FC = () => {
     rotate: () => {}
   });
 
-  useEffect(() => {
-    if (gameOver) {
-      setIsGameStarted(false);
-    }
-  }, [gameOver]);
-
-  const handleStart = (selectedDifficulty: string) => {
+  const handleDifficultySelect = (selectedDifficulty: string) => {
+    setDifficulty(selectedDifficulty);
     setSelectedDifficulty(selectedDifficulty);
-    setGameState("control-select");
+    if (isMobile) {
+      setGameState("control-select");
+    } else {
+      setGameState("playing");
+      setControlType("arrows");
+    }
   };
 
-  const handleControlSelect = (type: 'arrows' | 'touch') => {
+  const handleControlSelect = (type: "arrows" | "touch") => {
     setControlType(type);
-    setDifficulty(selectedDifficulty!);
     setGameState("playing");
+  };
+
+  const handleRestart = () => {
+    restart();
     setIsGameStarted(false);
     setShowInitialCountdown(true);
-  };
-
-  const handleRefresh = () => {
-    restart();
-    setIsGameStarted(true);
-    setShowInitialCountdown(false);
+    if (isMobile) {
+      setGameState("control-select");
+    } else {
+      setGameState("playing");
+    }
   };
 
   const handleHome = () => {
     restart();
-    setGameState("intro");
     setIsGameStarted(false);
     setShowInitialCountdown(true);
+    setGameState("intro");
+    setSelectedDifficulty(null);
     setControlType(null);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 touch-none">
-      {gameState === "intro" ? (
-        <div className="animate-slide-in">
-          <IntroScreen onStart={handleStart} />
-        </div>
-      ) : gameState === "control-select" ? (
-        <div className="animate-slide-in">
-          <ControlSelect onSelect={handleControlSelect} />
-        </div>
-      ) : (
-        <div className="animate-slide-in">
-          <GameBoard
-            board={board}
-            score={score}
-            currentPiece={currentPiece}
-            position={position}
-            controls={wrappedControls}
-            onRefresh={handleRefresh}
-            onHome={handleHome}
-            setIsGameStarted={setIsGameStarted}
-            showCountdown={showInitialCountdown}
-            completedLines={completedLines}
-            onAnimationComplete={onAnimationComplete}
-            gameOver={gameOver}
-            controlType={controlType!}
-          />
-        </div>
+    <div className="min-h-screen bg-gray-900 text-white">
+      {gameState === "intro" && (
+        <IntroScreen
+          onStart={handleDifficultySelect}
+          selectedDifficulty={selectedDifficulty}
+        />
+      )}
+      {gameState === "control-select" && isMobile && (
+        <ControlSelect onSelect={handleControlSelect} />
+      )}
+      {gameState === "playing" && (
+        <GameBoard
+          board={board}
+          score={score}
+          currentPiece={currentPiece}
+          position={position}
+          controls={wrappedControls}
+          onRefresh={handleRestart}
+          onHome={handleHome}
+          setIsGameStarted={setIsGameStarted}
+          showCountdown={showInitialCountdown}
+          completedLines={completedLines}
+          onAnimationComplete={onAnimationComplete}
+          gameOver={gameOver}
+          controlType={controlType}
+        />
       )}
     </div>
   );

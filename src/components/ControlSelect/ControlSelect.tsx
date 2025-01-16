@@ -13,7 +13,7 @@ export const ControlSelect: React.FC<ControlSelectProps> = ({ onSelect }) => {
   const t = translations[language];
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 md:hidden">
       <div className="bg-gray-900 p-6 rounded-lg border-2 border-purple-500/50 max-w-sm w-full space-y-6">
         <h3 className="text-2xl font-bold text-purple-400 text-center">
           {t.selectControls}
