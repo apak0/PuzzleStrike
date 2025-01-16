@@ -10,6 +10,7 @@ import { GameOverOverlay } from "./GameOver/GameOverOverlay";
 import { Button } from "./UI/Button";
 import { useLanguage } from "../contexts/LanguageContext";
 import { translations } from "../translations";
+import { TouchInstructions } from "./TouchInstructions/TouchInstructions";
 
 interface GameBoardProps {
   board: number[][];
@@ -115,6 +116,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
         </div>
       </div>
       <GameControls {...controls} />
+      <TouchInstructions />
     </Container>
   );
 };

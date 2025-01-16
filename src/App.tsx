@@ -3,6 +3,7 @@ import { IntroScreen } from "./components/IntroScreen";
 import { GameBoard } from "./components/GameBoard";
 import { useTetris } from "./hooks/useTetris";
 import { useKeyboardControls } from "./hooks/useKeyboardControls";
+import { useTouchControls } from "./hooks/useTouchControls";
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<"intro" | "playing">("intro");
@@ -30,7 +31,9 @@ const App: React.FC = () => {
     rotate: () => controls.rotate(isGameStarted && !gameOver)
   };
 
+  // Use both keyboard and touch controls
   useKeyboardControls(wrappedControls);
+  useTouchControls(wrappedControls);
 
   useEffect(() => {
     if (gameOver) {
@@ -59,7 +62,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-900 touch-none">
       {gameState === "intro" ? (
         <div className="animate-slide-in">
           <IntroScreen onStart={handleStart} />

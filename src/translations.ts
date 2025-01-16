@@ -2,7 +2,7 @@ import { Ticket } from "lucide-react";
 
 export const translations = {
   en: {
-    // ... mevcut çeviriler
+    // ... existing translations
     go: 'GO!',
     easy: "Easy",
     medium: "Medium",
@@ -15,10 +15,16 @@ export const translations = {
     finalScore: 'Final Score',
     playAgain: 'Play Again',
     home: 'Home',
-    refresh: 'Restart'
+    refresh: 'Restart',
+    touchControls: 'Touch Controls',
+    touchSwipeLeftRight: 'Swipe left/right to move',
+    touchSwipeDown: 'Swipe down to drop faster',
+    touchTap: 'Tap to rotate',
+    touchSwipeDownFast: 'Quick swipe down for instant drop',
+    gotIt: 'Got it!'
   },
   tr: {
-    // ... mevcut çeviriler
+    // ... existing translations
     go: 'BAŞLA!',
     easy: "Kolay",
     medium: "Orta",
@@ -31,6 +37,12 @@ export const translations = {
     finalScore: 'Son Skor',
     playAgain: 'Tekrar Oyna',
     home: 'Ana Sayfa',
-    refresh: 'Yeniden Başlat'
+    refresh: 'Yeniden Başlat',
+    touchControls: 'Dokunmatik Kontroller',
+    touchSwipeLeftRight: 'Sağa/sola kaydırarak hareket et',
+    touchSwipeDown: 'Aşağı kaydırarak hızlı düşür',
+    touchTap: 'Döndürmek için dokun',
+    touchSwipeDownFast: 'Anında düşürmek için hızlıca aşağı kaydır',
+    gotIt: 'Anladım!'
   },
 };
