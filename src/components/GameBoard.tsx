@@ -5,7 +5,7 @@ import { GameHeader } from "./GameHeader/GameHeader";
 import { GameControls } from "./GameControls/GameControls";
 import { createDisplayBoard } from "../utils/boardUtils";
 import { Countdown } from "./Countdown/Countdown";
-import { BoomAnimation } from "./Animations/BoomAnimation";
+import { LineCompleteAnimation } from "./Animations/LineCompleteAnimation";
 
 interface GameBoardProps {
   board: number[][];
@@ -78,12 +78,17 @@ export const GameBoard: React.FC<GameBoardProps> = ({
           <div className="relative border-2 border-purple-500/50 rounded-lg p-0.5 sm:p-1 bg-gray-900/90 shadow-lg shadow-purple-500/20">
             <div className="grid grid-cols-1 gap-0">
               {displayBoard.map((row, i) => (
-                <BoardRow key={i} row={row} rowIndex={i} />
+                <BoardRow 
+                  key={i} 
+                  row={row} 
+                  rowIndex={i} 
+                  isCompleted={completedLines.includes(i)}
+                />
               ))}
             </div>
             {displayCountdown && <Countdown count={countdown} />}
             {completedLines.map((rowIndex) => (
-              <BoomAnimation
+              <LineCompleteAnimation
                 key={rowIndex}
                 rowIndex={rowIndex}
                 onComplete={onAnimationComplete}
