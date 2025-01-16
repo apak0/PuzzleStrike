@@ -6,6 +6,7 @@ import { GameControls } from "./GameControls/GameControls";
 import { createDisplayBoard } from "../utils/boardUtils";
 import { Countdown } from "./Countdown/Countdown";
 import { LineCompleteAnimation } from "./Animations/LineCompleteAnimation";
+import { GameOverOverlay } from "./GameOver/GameOverOverlay";
 
 interface GameBoardProps {
   board: number[][];
@@ -30,6 +31,7 @@ interface GameBoardProps {
   showCountdown: boolean;
   completedLines: number[];
   onAnimationComplete: () => void;
+  gameOver: boolean;
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({
@@ -43,6 +45,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   showCountdown,
   completedLines,
   onAnimationComplete,
+  gameOver,
 }) => {
   const [countdown, setCountdown] = useState(3);
   const [displayCountdown, setDisplayCountdown] = useState(showCountdown);
@@ -94,6 +97,12 @@ export const GameBoard: React.FC<GameBoardProps> = ({
                 onComplete={onAnimationComplete}
               />
             ))}
+            {gameOver && (
+              <GameOverOverlay
+                score={score}
+                onRestart={onRefresh}
+              />
+            )}
           </div>
         </div>
       </div>

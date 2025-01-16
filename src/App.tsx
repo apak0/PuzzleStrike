@@ -23,11 +23,11 @@ const App: React.FC = () => {
   } = useTetris(difficulty, isGameStarted);
 
   const wrappedControls = {
-    moveLeft: () => controls.moveLeft(isGameStarted),
-    moveRight: () => controls.moveRight(isGameStarted),
-    moveDown: () => controls.moveDown(isGameStarted),
-    hardDrop: () => controls.hardDrop(isGameStarted),
-    rotate: () => controls.rotate(isGameStarted)
+    moveLeft: () => controls.moveLeft(isGameStarted && !gameOver),
+    moveRight: () => controls.moveRight(isGameStarted && !gameOver),
+    moveDown: () => controls.moveDown(isGameStarted && !gameOver),
+    hardDrop: () => controls.hardDrop(isGameStarted && !gameOver),
+    rotate: () => controls.rotate(isGameStarted && !gameOver)
   };
 
   useKeyboardControls(wrappedControls);
@@ -70,6 +70,7 @@ const App: React.FC = () => {
             showCountdown={showInitialCountdown}
             completedLines={completedLines}
             onAnimationComplete={onAnimationComplete}
+            gameOver={gameOver}
           />
         </div>
       )}

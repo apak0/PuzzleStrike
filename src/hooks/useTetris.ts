@@ -25,6 +25,11 @@ export const useTetris = (difficulty: string, isGameStarted: boolean) => {
     }
   }, [difficulty]);
 
+  const checkGameOver = useCallback((board: number[][]) => {
+    // Check if any blocks exist in the top row (y = 0)
+    return board[0].some(cell => cell !== 0);
+  }, []);
+
   const moveLeft = useCallback((isActive: boolean) => {
     if (!isActive || isAnimating) return;
     if (isValidMove(state.board, currentPiece.shape, position.x - 1, position.y)) {
@@ -105,7 +110,7 @@ export const useTetris = (difficulty: string, isGameStarted: boolean) => {
       if (!moveResult) {
         const newBoard = state.board.map(row => [...row]);
         
-        let canPlacePiece = false;
+        // Place the current piece on the board
         currentPiece.shape.forEach((row, y) => {
           row.forEach((value, x) => {
             if (value !== 0) {
@@ -114,13 +119,13 @@ export const useTetris = (difficulty: string, isGameStarted: boolean) => {
               
               if (boardY >= 0 && boardY < BOARD_HEIGHT && boardX >= 0 && boardX < BOARD_WIDTH) {
                 newBoard[boardY][boardX] = currentPiece.color;
-                canPlacePiece = true;
               }
             }
           });
         });
 
-        if (!canPlacePiece || position.y <= 0) {
+        // Check for game over
+        if (checkGameOver(newBoard)) {
           setState(prev => ({ ...prev, gameOver: true }));
           return;
         }
@@ -151,7 +156,7 @@ export const useTetris = (difficulty: string, isGameStarted: boolean) => {
     }, getDropSpeed());
 
     return () => clearInterval(gameLoop);
-  }, [isGameStarted, moveDown, state.board, currentPiece, position, setState, resetPosition, getDropSpeed, isAnimating]);
+  }, [isGameStarted, moveDown, state.board, currentPiece, position, setState, resetPosition, getDropSpeed, isAnimating, checkGameOver]);
 
   const getDisplayBoard = useCallback(() => {
     const displayBoard = state.board.map(row => [...row]);

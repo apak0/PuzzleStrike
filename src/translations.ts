@@ -11,6 +11,9 @@ export const translations = {
     title: 'PuzzleStrike',
     
     selectDifficulty: 'Select Difficulty',
+    gameOver: 'Game Over',
+    finalScore: 'Final Score',
+    playAgain: 'Play Again'
   },
   tr: {
     // ... mevcut çeviriler
@@ -22,5 +25,8 @@ export const translations = {
     title: 'PuzzleStrike',
    
     selectDifficulty: 'Zorluk Seç',
+    gameOver: 'Oyun Bitti',
+    finalScore: 'Son Skor',
+    playAgain: 'Tekrar Oyna'
   },
 };
