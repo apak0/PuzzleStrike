@@ -12,34 +12,44 @@ export const useTouchControls = (controls: TouchControls) => {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const lastMoveTimeRef = useRef<number>(0);
   const hasMoved = useRef<boolean>(false);
-  const moveThreshold = 30; // Minimum distance in pixels to trigger a move
-  const swipeThreshold = 50; // Minimum distance in pixels to trigger a swipe
-  const moveDelay = 100; // Minimum time between moves in milliseconds
+  const moveThreshold = 30;
+  const swipeThreshold = 50;
+  const moveDelay = 100;
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
+      // Check if touch is within the game board area
+      const gameBoard = document.querySelector('.relative.border-2.border-purple-500\\/50');
       const touch = e.touches[0];
+      const rect = gameBoard?.getBoundingClientRect();
+      
+      if (!rect || !isWithinRect(touch.clientX, touch.clientY, rect)) return;
+      
       touchStartRef.current = {
         x: touch.clientX,
         y: touch.clientY,
       };
       hasMoved.current = false;
+      e.preventDefault();
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!touchStartRef.current) return;
 
+      const gameBoard = document.querySelector('.relative.border-2.border-purple-500\\/50');
       const touch = e.touches[0];
+      const rect = gameBoard?.getBoundingClientRect();
+      
+      if (!rect || !isWithinRect(touch.clientX, touch.clientY, rect)) return;
+
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
       const currentTime = Date.now();
 
-      // If there's significant movement, mark that we've moved
       if (Math.abs(deltaX) > moveThreshold || Math.abs(deltaY) > moveThreshold) {
         hasMoved.current = true;
       }
 
-      // Only process move if enough time has passed since last move
       if (currentTime - lastMoveTimeRef.current < moveDelay) return;
 
       // Horizontal movement
@@ -49,7 +59,6 @@ export const useTouchControls = (controls: TouchControls) => {
         } else {
           controls.moveLeft();
         }
-        // Update the start position for continuous movement
         touchStartRef.current.x = touch.clientX;
         lastMoveTimeRef.current = currentTime;
       }
@@ -61,14 +70,27 @@ export const useTouchControls = (controls: TouchControls) => {
         lastMoveTimeRef.current = currentTime;
       }
 
-      // Prevent default scrolling
+      // Hard drop on quick downward swipe
+      if (deltaY > swipeThreshold * 2) {
+        controls.hardDrop();
+        touchStartRef.current = null;
+        hasMoved.current = false;
+        return;
+      }
+
       e.preventDefault();
+      e.stopPropagation();
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       if (!touchStartRef.current) return;
 
+      const gameBoard = document.querySelector('.relative.border-2.border-purple-500\\/50');
       const touch = e.changedTouches[0];
+      const rect = gameBoard?.getBoundingClientRect();
+      
+      if (!rect || !isWithinRect(touch.clientX, touch.clientY, rect)) return;
+
       const deltaX = touch.clientX - touchStartRef.current.x;
       const deltaY = touch.clientY - touchStartRef.current.y;
 
@@ -76,19 +98,20 @@ export const useTouchControls = (controls: TouchControls) => {
       if (!hasMoved.current && Math.abs(deltaX) < moveThreshold && Math.abs(deltaY) < moveThreshold) {
         controls.rotate();
       }
-      // Hard drop on quick downward swipe
-      else if (deltaY > swipeThreshold && Math.abs(deltaX) < moveThreshold) {
-        controls.hardDrop();
-      }
 
       touchStartRef.current = null;
       hasMoved.current = false;
+      e.preventDefault();
     };
 
-    // Add touch event listeners
+    // Helper function to check if touch is within game board
+    const isWithinRect = (x: number, y: number, rect: DOMRect) => {
+      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    };
+
     document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
