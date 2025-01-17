@@ -18,7 +18,13 @@ export const useTouchControls = (controls: TouchControls) => {
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      // Check if touch is within the game board area
+      // Don't handle touch events if we're clicking a button or game is over
+      if (e.target instanceof Element) {
+        const isButton = e.target.closest('button');
+        const isGameOver = e.target.closest('.game-over-overlay');
+        if (isButton || isGameOver) return;
+      }
+
       const gameBoard = document.querySelector('.relative.border-2.border-purple-500\\/50');
       const touch = e.touches[0];
       const rect = gameBoard?.getBoundingClientRect();
@@ -34,6 +40,13 @@ export const useTouchControls = (controls: TouchControls) => {
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      // Don't handle touch events if we're clicking a button or game is over
+      if (e.target instanceof Element) {
+        const isButton = e.target.closest('button');
+        const isGameOver = e.target.closest('.game-over-overlay');
+        if (isButton || isGameOver) return;
+      }
+
       if (!touchStartRef.current) return;
 
       const gameBoard = document.querySelector('.relative.border-2.border-purple-500\\/50');
@@ -79,10 +92,16 @@ export const useTouchControls = (controls: TouchControls) => {
       }
 
       e.preventDefault();
-      e.stopPropagation();
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
+      // Don't handle touch events if we're clicking a button or game is over
+      if (e.target instanceof Element) {
+        const isButton = e.target.closest('button');
+        const isGameOver = e.target.closest('.game-over-overlay');
+        if (isButton || isGameOver) return;
+      }
+
       if (!touchStartRef.current) return;
 
       const gameBoard = document.querySelector('.relative.border-2.border-purple-500\\/50');
@@ -101,7 +120,6 @@ export const useTouchControls = (controls: TouchControls) => {
 
       touchStartRef.current = null;
       hasMoved.current = false;
-      e.preventDefault();
     };
 
     // Helper function to check if touch is within game board

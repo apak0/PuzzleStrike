@@ -13,8 +13,23 @@ export const GameOverOverlay: React.FC<GameOverOverlayProps> = ({ score, onResta
   const { language } = useLanguage();
   const t = translations[language];
 
+  const handleRestart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onRestart();
+  };
+
+  const handleHome = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onHome();
+  };
+
   return (
-    <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div 
+      className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 game-over-overlay"
+      onClick={(e) => e.stopPropagation()}
+    >
       <div className="bg-gray-900 p-8 rounded-lg border-2 border-purple-500/50 text-center space-y-6 max-w-sm mx-4">
         <h2 className="text-3xl font-bold text-red-500">{t.gameOver}</h2>
         <div className="space-y-2">
@@ -25,7 +40,7 @@ export const GameOverOverlay: React.FC<GameOverOverlayProps> = ({ score, onResta
           <Button
             variant="primary"
             size="lg"
-            onClick={onRestart}
+            onClick={handleRestart}
             className="w-full"
           >
             {t.playAgain}
@@ -33,8 +48,8 @@ export const GameOverOverlay: React.FC<GameOverOverlayProps> = ({ score, onResta
           <Button
             variant="secondary"
             size="lg"
-            onClick={onHome}
-            className="w-full bg-purple-500/10 hover:bg-purple-500/20"
+            onClick={handleHome}
+            className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50"
           >
             {t.home}
           </Button>
