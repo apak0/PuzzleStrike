@@ -13,6 +13,19 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => {
   const { language } = useLanguage();
   const t = translations[language];
 
+  const handleStart = () => {
+    let countdown = 2; // Geri sayımı 2'den başlat
+    const interval = setInterval(() => {
+      if (countdown === 0) {
+        clearInterval(interval);
+        onStart(selectedDifficulty);
+      } else {
+        console.log(countdown);
+        countdown--;
+      }
+    }, 1000);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <LanguageSelector />
@@ -49,7 +62,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => {
       </div>
 
       <button
-        onClick={() => onStart(selectedDifficulty)}
+        onClick={handleStart}
         className="px-12 py-4 text-2xl font-bold rounded-lg bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 text-white
           hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 transform hover:scale-105 transition-all duration-300
           shadow-lg shadow-indigo-500/50"
