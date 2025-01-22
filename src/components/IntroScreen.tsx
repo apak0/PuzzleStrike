@@ -14,16 +14,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({ onStart }) => {
   const t = translations[language];
 
   const handleStart = () => {
-    let countdown = 2; // Geri sayımı 2'den başlat
-    const interval = setInterval(() => {
-      if (countdown === 0) {
-        clearInterval(interval);
-        onStart(selectedDifficulty);
-      } else {
-        console.log(countdown);
-        countdown--;
-      }
-    }, 1000);
+    onStart(selectedDifficulty);
   };
 
   return (
