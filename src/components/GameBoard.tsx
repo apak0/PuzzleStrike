@@ -52,7 +52,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({
   gameOver,
   controlType,
 }) => {
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(2);
   const [displayCountdown, setDisplayCountdown] = useState(showCountdown);
   const displayBoard = createDisplayBoard(board, currentPiece, position);
 
